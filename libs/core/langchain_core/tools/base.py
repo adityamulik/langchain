@@ -546,6 +546,8 @@ class ChildTool(BaseTool):
         """
         if isinstance(self.args_schema, dict):
             json_schema = self.args_schema
+        elif self.args_schema and issubclass(self.args_schema, BaseModelV1):
+            json_schema = self.args_schema.schema()
         else:
             input_schema = self.get_input_schema()
             json_schema = input_schema.model_json_schema()
@@ -1362,8 +1364,8 @@ def get_all_basemodel_annotations(
                 continue
 
             # if class = FooBar inherits from Baz[str]:
-            # parent = Baz[str],
-            # parent_origin = Baz,
+            # parent = class Baz[str],
+            # parent_origin = class Baz,
             # generic_type_vars = (type vars in Baz)
             # generic_map = {type var in Baz: str}
             generic_type_vars: tuple = getattr(parent_origin, "__parameters__", ())
